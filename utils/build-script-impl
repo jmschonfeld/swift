@@ -2815,6 +2815,26 @@ for host in "${ALL_HOSTS[@]}"; do
                  fi
                 continue
                 ;;
+            foundation)
+                if [[ ${host} == "macosx"* ]]; then
+                    echo "Skipping Foundation on OS X -- Foundation does not build for this platform"
+                    continue
+                fi
+
+                if [[ "${SKIP_TEST_FOUNDATION}" ]]; then
+                    continue
+                fi
+
+                cmake_options=(
+                  ${cmake_options[@]}
+                  -DCMAKE_BUILD_TYPE:STRING=${FOUNDATION_BUILD_TYPE}
+                  -DCMAKE_C_COMPILER:PATH=${CLANG_BIN}/clang
+                  -DCMAKE_CXX_COMPILER:PATH=${CLANG_BIN}/clang++
+                  -DCMAKE_SWIFT_COMPILER:PATH=${SWIFTC_BIN}
+                  -DCMAKE_INSTALL_PREFIX:PATH=$(get_host_install_prefix ${host})
+                )
+                results_targets=( "FundamentalToolchainTests" )
+                ;;
             llbuild)
                 if [[ "${SKIP_TEST_LLBUILD}" ]]; then
                     continue

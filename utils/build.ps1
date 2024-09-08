@@ -1748,7 +1748,17 @@ function Build-Dispatch([Platform]$Platform, $Arch, [switch]$Test = $false) {
 
 function Build-Foundation([Platform]$Platform, $Arch, [switch]$Test = $false) {
   if ($Test) {
-    # Foundation tests build via swiftpm rather than CMake
+    # Build and run fundamental toolchain tests via CMake
+    $OutDir = Join-Path -Path $HostArch.BinaryCache -ChildPath swift-foundation-fundamental-toolchain-tests
+    Build-CMakeProject `
+      -Src $SourceCache\swift-foundation `
+      -Bin $OutDir `
+      -Arch $Arch `
+      -Platform $Platform `
+      -UseBuiltCompilers ASM,C,CXX,Swift `
+      -BuildTargets @("FundamentalToolchainTests")
+
+    # Build and run swift-foundation tests via SwiftPM
     $OutDir = Join-Path -Path $HostArch.BinaryCache -ChildPath swift-foundation-tests
 
     Isolate-EnvVars {
@@ -1760,6 +1770,7 @@ function Build-Foundation([Platform]$Platform, $Arch, [switch]$Test = $false) {
         -Arch $HostArch
     }
 
+    # Build and run swift-corelibs-foundation tests via SwiftPM
     $OutDir = Join-Path -Path $HostArch.BinaryCache -ChildPath foundation-tests
     $ShortArch = $Arch.LLVMName
 
